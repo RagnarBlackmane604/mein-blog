@@ -1,3 +1,5 @@
+import { Blog } from './types';
+
 const blogs: Blog[] = [
   {
     id: '1',
@@ -71,24 +73,43 @@ const blogs: Blog[] = [
   },
 ];
 
+// Slug-Helfer
+function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/ä/g, 'ae')
+    .replace(/ö/g, 'oe')
+    .replace(/ü/g, 'ue')
+    .replace(/ß/g, 'ss')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim();
+}
+
+// Holt alle Blogs
 export async function getAllBlogs(): Promise<Blog[]> {
   return blogs;
 }
 
+// Findet Blog per ID
 export async function getBlogById(id: string): Promise<Blog | undefined> {
   return blogs.find(blog => blog.id === id);
 }
 
+// Findet Blog per Slug
 export async function getBlogBySlug(slug: string): Promise<Blog | undefined> {
   return blogs.find(blog => blog.slug === slug);
 }
 
+// Speichert neuen Blog
 export async function saveBlog(blog: Omit<Blog, 'id' | 'slug'>): Promise<Blog> {
-  const newBlog = {
+  const newBlog: Blog = {
     id: (blogs.length + 1).toString(),
-    slug: blog.title.toLowerCase().replace(/\s+/g, '-'),
-    ...blog
+    slug: generateSlug(blog.title),
+    ...blog,
   };
+
   blogs.push(newBlog);
   return newBlog;
 }
